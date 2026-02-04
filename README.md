@@ -110,4 +110,3 @@ The system is designed with a clean architecture approach, separating concerns i
 ## License
 
 This project is for educational purposes.
-# FastApi-Project
