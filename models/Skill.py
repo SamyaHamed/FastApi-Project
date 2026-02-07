@@ -9,11 +9,8 @@ class Skill(Base):
     __tablename__ = "skills"
     id = Column(Integer,primary_key= True)
     name = Column(String(30), nullable= False)
-    #level = Column(Enum(SkillLevel),nullable=False)
     level = Column(
     Enum(SkillLevel, name="skill_level_enum"),
     nullable=False)
-
-
     trainees  = relationship("Trainee",secondary= "trainee_skills",back_populates="skills")
-
+    

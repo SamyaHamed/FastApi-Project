@@ -3,22 +3,34 @@ from models.User import User
 from models.Trainee import Trainee
 from models.Company import Company
 from core.security import  create_access_token
-from utils.hashing import hash_pass,verify_pass
-from schemas.auth import trainee_signup,company_signup
-from core.config import settings
+from utils.hashing    import Hashing
+from schemas.auth import signup_request
+from config import settings
 from datetime import timedelta
 from app_enums.UserRole import UserRole
+from services.signup.factory import SignUpStrategyFactory
+from repositories.company_repository import CompanyRepository
+from repositories.trainee_repository import TraineeRepository
+from repositories.user_repository import UserRepository
 
 class AuthService:
+    def __init__(
+        self,
+        user_repo: UserRepository,
+        trainee_repo: TraineeRepository,
+        company_repo: CompanyRepository
+    ):
+        self.user_repo = user_repo
+        self.trainee_repo = trainee_repo
+        self.company_repo = company_repo
 
-    @staticmethod
-    def login(db: Session , email: str ,password : str ):
-        user = db.query(User).filter(User.email == email).first()
+
+    def login(self, email: str, password: str) -> str | None:
+        user = self.user_repo.get_by_email(email)
         if not user:
             return None
         
-        
-        if not verify_pass(password,user.password):
+        if not Hashing.verify_pass(password,user.password):
             return None
         
         access_token = create_access_token(
@@ -26,78 +38,24 @@ class AuthService:
             role= user.role,
             expires_delta= timedelta(minutes = settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         )
-        
         return access_token
     
-    @staticmethod
-    def trainee_sign_up(db:Session , trainee_data: trainee_signup):
-        existing_user = db.query(User).filter(User.email == trainee_data.email).first()
-        if existing_user: 
-            return None
-        
-        user = User (
-            email = trainee_data.email,
-            password = hash_pass(trainee_data.password),
-            role = UserRole.Trainee
-        )
-        db.add(user)
-        db.commit()
-        db.refresh(user)
-
-        trainee = Trainee(
-            first_name = trainee_data.first_name,
-            last_name = trainee_data.last_name,
-            user = user
-        )
-        db.add(trainee)
-        db.commit()
-        db.refresh(user)
-
-
-        return{
-            "id" : user.id,
-            "email" : user.email,
-            "role" : user.role,
-            "name" : trainee.first_name +" "+ trainee.last_name
-
-        }
     
-    @staticmethod
-    def company_sign_up(db:Session , company_sign_up : company_signup):
-        existing_user = db.query(User).filter(User.email == company_sign_up.email).first()
-        if existing_user :
-            return None
-        
-        user = User (
-            email = company_sign_up.email,
-            password = hash_pass(company_sign_up.password),
-            role = UserRole.Company
-        )
-        db.add(user)
-        db.commit()
-        db.refresh(user)
-
-        company = Company(
-            city = company_sign_up.city,
-            name = company_sign_up.name,
-            user = user
-        )
-        db.add(company)
-        db.commit()
-        db.refresh(company)
-
-        return {
-            "id" : user.id,
-            "email" : user.email,
-            "name" : company.name,
-            "city" : company.city
-        }
+    def sign_up(self, data: signup_request):
+        #strategy = SignUpStrategyFactory.get_strategy(data.role)
+        strategy = SignUpStrategyFactory.get_strategy(
+        role=data.role,
+        user_repo=self.user_repo,
+        trainee_repo=self.trainee_repo,
+        company_repo=self.company_repo
+            )
+        user = strategy.execute(data)
+        return user
     
-
-    @staticmethod
-    def get_profile(db: Session, user: User):
+    
+    def get_profile(self,user: User):
         if user.role == UserRole.Trainee:
-            trainee = db.query(Trainee).filter(Trainee.user_id == user.id).first()
+            trainee = self.trainee_repo.get_by_id(user.id)
             if not trainee:
                 return None
 
@@ -107,7 +65,7 @@ class AuthService:
             }
 
         elif user.role == UserRole.Company:
-            company = db.query(Company).filter(Company.user_id == user.id).first()
+            company = self.company_repo.get_by_id(user.id)
             if not company:
                 return None
 

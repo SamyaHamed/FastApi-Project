@@ -19,4 +19,5 @@ class Trainee(Base):
 
     skills = relationship("Skill",secondary="trainee_skills", back_populates="trainees")
     applications = relationship("Application", back_populates= "trainee")
+    
 

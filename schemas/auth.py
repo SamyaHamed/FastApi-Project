@@ -1,5 +1,6 @@
 from pydantic import EmailStr,BaseModel
 from typing import Optional
+from app_enums.UserRole import UserRole
 
 class login_request(BaseModel):
     email : EmailStr
@@ -9,17 +10,14 @@ class token_response(BaseModel):
     access_token : str
     token_type : str = "bearer"
 
-class trainee_signup(BaseModel):
+class signup_request(BaseModel):
+    role : UserRole
     email : EmailStr
     password : str
-    first_name : str
-    last_name : str
-
-class company_signup(BaseModel):
-    email : EmailStr
-    password : str
-    name : str
-    city : str
+    first_name : Optional [str] = None
+    last_name : Optional [str] = None
+    name : Optional [str] = None
+    city : Optional [str] = None
 
 class get_profile_response(BaseModel):
     name : str

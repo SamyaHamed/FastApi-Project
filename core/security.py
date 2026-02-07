@@ -1,8 +1,11 @@
-from datetime import datetime , timedelta , timezone
+from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
 from typing import Optional
-from core.config import settings
+from fastapi.security import OAuth2PasswordBearer
+from config import settings
 from app_enums.UserRole import UserRole
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
 def create_access_token(
@@ -16,9 +19,9 @@ def create_access_token(
     )
 
     payload = {
-        "sub": str(user_id),               
-        "role": role.value,                      
-        "type": "access",                 
+        "sub": str(user_id),
+        "role": role.value,
+        "type": "access",
         "iat": datetime.now(timezone.utc),
         "exp": expire
     }
@@ -54,4 +57,3 @@ def decode_access_token(token: str):
 
     except JWTError:
         return None
-
