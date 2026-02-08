@@ -13,7 +13,7 @@ from repositories.user_repository import UserRepository
 class AuthService:
     
     @staticmethod
-    def login(self, email: str, password: str) -> str | None:
+    def login(email: str, password: str) -> str | None:
         user = UserRepository.get_by_email(email)
         if not user:
             return None

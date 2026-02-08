@@ -16,6 +16,6 @@ class CompanyRepository:
             db.rollback()
             raise e
     
-    def get_by_id(self , id : int) -> Company | None:
-        return (self.db.query(Company).filter(Company.user_id == id).first())
+    def get_by_id( id : int) -> Company | None:
+        return (db.query(Company).filter(Company.user_id == id).first())
     

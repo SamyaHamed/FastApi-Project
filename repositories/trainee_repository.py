@@ -14,6 +14,6 @@ class TraineeRepository:
                 db.rollback()
                 raise e
     
-    def get_by_id(self , id : int) -> Trainee | None:
-        return(self.db.query(Trainee).filter(Trainee.user_id == id).first())
+    def get_by_id( id : int) -> Trainee | None:
+        return(db.query(Trainee).filter(Trainee.user_id == id).first())
         
