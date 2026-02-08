@@ -1,7 +1,4 @@
-from sqlalchemy.orm import Session
 from models.User import User
-from models.Trainee import Trainee
-from models.Company import Company
 from core.security import  create_access_token
 from utils.hashing    import Hashing
 from schemas.auth import signup_request
@@ -14,19 +11,10 @@ from repositories.trainee_repository import TraineeRepository
 from repositories.user_repository import UserRepository
 
 class AuthService:
-    def __init__(
-        self,
-        user_repo: UserRepository,
-        trainee_repo: TraineeRepository,
-        company_repo: CompanyRepository
-    ):
-        self.user_repo = user_repo
-        self.trainee_repo = trainee_repo
-        self.company_repo = company_repo
-
-
+    
+    @staticmethod
     def login(self, email: str, password: str) -> str | None:
-        user = self.user_repo.get_by_email(email)
+        user = UserRepository.get_by_email(email)
         if not user:
             return None
         
@@ -40,22 +28,16 @@ class AuthService:
         )
         return access_token
     
-    
-    def sign_up(self, data: signup_request):
-        #strategy = SignUpStrategyFactory.get_strategy(data.role)
-        strategy = SignUpStrategyFactory.get_strategy(
-        role=data.role,
-        user_repo=self.user_repo,
-        trainee_repo=self.trainee_repo,
-        company_repo=self.company_repo
-            )
+    @staticmethod
+    def sign_up( data: signup_request):
+        strategy = SignUpStrategyFactory.get_strategy(data.role)
         user = strategy.execute(data)
         return user
     
-    
-    def get_profile(self,user: User):
+    @staticmethod
+    def get_profile(user: User):
         if user.role == UserRole.Trainee:
-            trainee = self.trainee_repo.get_by_id(user.id)
+            trainee = TraineeRepository.get_by_id(user.id)
             if not trainee:
                 return None
 
@@ -65,7 +47,7 @@ class AuthService:
             }
 
         elif user.role == UserRole.Company:
-            company = self.company_repo.get_by_id(user.id)
+            company = CompanyRepository.get_by_id(user.id)
             if not company:
                 return None
 
@@ -76,6 +58,8 @@ class AuthService:
             }
 
         return None
+    
+
     
 
   

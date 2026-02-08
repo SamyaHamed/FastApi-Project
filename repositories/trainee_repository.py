@@ -1,18 +1,17 @@
-from sqlalchemy.orm import Session
-from models.Trainee import Trainee 
+from models.Trainee import Trainee
+from database.data import db
 
 class TraineeRepository:
-    def __init__(self , db : Session):
-        self.db = db
-
-    def create(self , trainee : Trainee) -> Trainee:
+    
+    @staticmethod
+    def create( trainee : Trainee) -> Trainee:
         try:    
-            self.db.add(trainee)
-            self.db.commit()
-            self.db.refresh(trainee)
+            db.add(trainee)
+            db.commit()
+            db.refresh(trainee)
             return trainee
         except Exception as e:
-                self.db.rollback()
+                db.rollback()
                 raise e
     
     def get_by_id(self , id : int) -> Trainee | None:

@@ -6,20 +6,14 @@ from services.signup.base import SignUpStrategy
 from app_enums.UserRole import UserRole
 from repositories.company_repository import CompanyRepository
 from repositories.user_repository import UserRepository
+from schemas.auth import signup_request
 
 class CompanySignUp (SignUpStrategy):
     
-    def __init__(
-        self,
-        user_repo: UserRepository,
-        company_repo: CompanyRepository
-    ):
-        self.user_repo = user_repo
-        self.company_repo = company_repo
-
-
-    def execute(self, data):
-        existing_user = self.user_repo.get_by_email(data.email)
+   
+    @staticmethod
+    def execute(data : signup_request):
+        existing_user = UserRepository.get_by_email(data.email)
         if existing_user:
             return None
         
@@ -35,8 +29,10 @@ class CompanySignUp (SignUpStrategy):
             city = data.city,
             user = user
             )
-        self.user_repo.create(user)
-        self.company_repo.create(company)
+        UserRepository.create(user)
+        CompanyRepository.create(company)
         return user
+    
+    
 
         

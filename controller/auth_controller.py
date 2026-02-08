@@ -2,16 +2,16 @@ from fastapi import Depends,HTTPException,status
 from schemas.auth import signup_request,login_request
 from services.auth_services import AuthService
 from dependencies.auth_dependency import get_current_user
-from dependencies.auth_provider import get_auth_service
+#from dependencies.auth_provider import get_auth_service
 
 
 class AuthController:
-    def __init__(self, auth_service: AuthService = Depends(get_auth_service)):
-        self.auth_service = auth_service
+    #def __init__(self):
+    #    self.auth_service = auth_service
 
 
     def login( self ,data : login_request):
-        token = self.auth_service.login(data.email,data.password)
+        token = AuthService.login(data.email,data.password)
         if not token:
              raise HTTPException(
                 status_code = status.HTTP_401_UNAUTHORIZED,
@@ -21,7 +21,7 @@ class AuthController:
 
 
     def sign_up(self ,data : signup_request ):
-        user = self.auth_service.sign_up(data)
+        user = AuthService.sign_up(data)
         if not user :
             raise HTTPException(
                 status_code = status.HTTP_409_CONFLICT,
@@ -33,7 +33,7 @@ class AuthController:
         self,
         current_user = Depends(get_current_user)
         ):
-        profile = self.auth_service.get_profile(current_user)
+        profile = AuthService.get_profile(current_user)
         if not profile:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,

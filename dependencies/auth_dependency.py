@@ -2,7 +2,6 @@ from fastapi import Depends, HTTPException, status
 from models.User import User
 from core.security import decode_access_token, oauth2_scheme
 from repositories.user_repository import UserRepository
-from dependencies.repository_provider import get_user_repository
 
 
 credentials_exception = HTTPException(
@@ -14,7 +13,6 @@ credentials_exception = HTTPException(
 
 def get_current_user(
     token: str = Depends(oauth2_scheme),
-    user_repo: UserRepository = Depends(get_user_repository),
 ) -> User:
 
     payload = decode_access_token(token)
@@ -25,8 +23,10 @@ def get_current_user(
     if user_id is None:
         raise credentials_exception
 
-    user = user_repo.get_by_id(user_id)
+    user = UserRepository.get_by_id(user_id)
     if user is None:
         raise credentials_exception
 
     return user
+
+

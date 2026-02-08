@@ -6,18 +6,13 @@ from services.signup.base import SignUpStrategy
 from utils.hashing import Hashing
 from repositories.user_repository import UserRepository
 from repositories.trainee_repository import TraineeRepository
+from schemas.auth import signup_request
 
 class TraineeSignUp(SignUpStrategy):
-    def __init__(
-        self,
-        user_repo: UserRepository,
-        trainee_repo: TraineeRepository
-    ):
-        self.user_repo = user_repo
-        self.trainee_repo = trainee_repo
-
-    def execute(self, data):
-        existing_user = self.user_repo.get_by_email(data.email)
+    
+    @staticmethod
+    def execute(data : signup_request):
+        existing_user = UserRepository.get_by_email(data.email)
         if existing_user :
             return None
         
@@ -31,8 +26,9 @@ class TraineeSignUp(SignUpStrategy):
             last_name = data.last_name ,
             user = user
         )
-        self.user_repo.create(user)
-        self.trainee_repo.create(trainee)
+        UserRepository.create(user)
+        TraineeRepository.create(trainee)
         return user
 
+        
         
