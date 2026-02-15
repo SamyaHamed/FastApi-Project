@@ -1,0 +1,18 @@
+{
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit"
+    },
+
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+
+    "pylint.enabled": true,
+    "pylint.args": [],
+
+    "isort.args": ["--profile", "black"],
+
+    "flake8.enabled": true,
+    "flake8.args": ["--max-line-length", "120"]
+}
